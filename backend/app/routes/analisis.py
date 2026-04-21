@@ -7,8 +7,9 @@ from ..services.analisis_service import (
     get_dashboard_metrics,
     calcular_costo_por_kg,
 )
+from ..dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/analisis", tags=["Analisis"])
+router = APIRouter(prefix="/analisis", tags=["Analisis"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/dashboard")

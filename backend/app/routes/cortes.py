@@ -4,8 +4,10 @@ from typing import List
 from ..database.connection import get_db
 from ..models.corte import Corte
 from ..schemas.corte import CorteCreate, CorteUpdate, CorteResponse
+from ..schemas.precio import PrecioResponse
+from ..dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/cortes", tags=["Cortes"])
+router = APIRouter(prefix="/cortes", tags=["Cortes"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=CorteResponse, status_code=201)
@@ -54,3 +56,11 @@ def eliminar_corte(corte_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Corte no encontrado")
     db.delete(c)
     db.commit()
+
+
+@router.get("/{corte_id}/precios", response_model=List[PrecioResponse])
+def historial_precios(corte_id: int, db: Session = Depends(get_db)):
+    c = db.query(Corte).filter(Corte.id == corte_id).first()
+    if not c:
+        raise HTTPException(404, "Corte no encontrado")
+    return c.precios

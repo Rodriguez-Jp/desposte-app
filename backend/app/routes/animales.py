@@ -5,8 +5,9 @@ from ..database.connection import get_db
 from ..models.animal import Animal
 from ..schemas.animal import AnimalCreate, AnimalUpdate, AnimalResponse
 from ..services.analisis_service import calcular_rendimiento_animal
+from ..dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/animales", tags=["Animales"])
+router = APIRouter(prefix="/animales", tags=["Animales"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=AnimalResponse, status_code=201)

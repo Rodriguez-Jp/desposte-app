@@ -4,8 +4,9 @@ from typing import List
 from ..database.connection import get_db
 from ..models.costo import Costo
 from ..schemas.costo import CostoCreate, CostoUpdate, CostoResponse
+from ..dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/costos", tags=["Costos"])
+router = APIRouter(prefix="/costos", tags=["Costos"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=CostoResponse, status_code=201)
@@ -25,6 +26,14 @@ def listar_costos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 @router.get("/animal/{animal_id}", response_model=List[CostoResponse])
 def costos_por_animal(animal_id: int, db: Session = Depends(get_db)):
     return db.query(Costo).filter(Costo.animal_id == animal_id).all()
+
+
+@router.get("/{costo_id}", response_model=CostoResponse)
+def obtener_costo(costo_id: int, db: Session = Depends(get_db)):
+    c = db.query(Costo).filter(Costo.id == costo_id).first()
+    if not c:
+        raise HTTPException(404, "Costo no encontrado")
+    return c
 
 
 @router.put("/{costo_id}", response_model=CostoResponse)

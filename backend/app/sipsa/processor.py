@@ -1,3 +1,4 @@
+import unicodedata
 import pandas as pd
 import numpy as np
 from typing import Dict, Optional
@@ -15,6 +16,29 @@ CORTE_MAP = {
     "brazo":           ["brazo"],
     "molida":          ["molida"],
 }
+
+
+def _normalizar(texto: str) -> str:
+    """Minúsculas, sin tildes, sin espacios dobles."""
+    texto = texto.lower().strip()
+    return "".join(
+        c for c in unicodedata.normalize("NFD", texto)
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+def encontrar_key_sipsa(nombre_corte: str) -> Optional[str]:
+    """
+    Busca en CORTE_MAP la clave que mejor coincide con el nombre de un corte.
+    Normaliza acentos y mayúsculas antes de comparar.
+    Retorna None si no hay coincidencia.
+    """
+    nombre_norm = _normalizar(nombre_corte)
+    for key, keywords in CORTE_MAP.items():
+        for kw in keywords:
+            if _normalizar(kw) in nombre_norm:
+                return key
+    return None
 
 
 def procesar_datos_sipsa(df: pd.DataFrame) -> pd.DataFrame:

@@ -3,13 +3,14 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date
-from ..database.connection import get_db
+from ..database.connection import get_db, SessionLocal
 from ..models.historico_sipsa import HistoricoSIPSA
 from ..sipsa.client import get_sipsa_bovino_prices
 from ..sipsa.processor import procesar_datos_sipsa, calcular_promedios_por_corte
+from ..dependencies.auth import get_current_user
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/sipsa", tags=["SIPSA"])
+router = APIRouter(prefix="/sipsa", tags=["SIPSA"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/consultar")
@@ -35,9 +36,8 @@ def guardar_sipsa(
     bg: BackgroundTasks,
     fecha_inicio: Optional[date] = None,
     fecha_fin: Optional[date] = None,
-    db: Session = Depends(get_db),
 ):
-    bg.add_task(_guardar_bg, fecha_inicio, fecha_fin, db)
+    bg.add_task(_guardar_bg, fecha_inicio, fecha_fin)
     return {"mensaje": "Actualizacion SIPSA iniciada en segundo plano"}
 
 
@@ -53,7 +53,8 @@ def historico_sipsa(skip: int = 0, limit: int = 200, db: Session = Depends(get_d
     return db.query(HistoricoSIPSA).offset(skip).limit(limit).all()
 
 
-def _guardar_bg(fecha_inicio, fecha_fin, db: Session):
+def _guardar_bg(fecha_inicio, fecha_fin):
+    db = SessionLocal()
     try:
         df = get_sipsa_bovino_prices(fecha_inicio, fecha_fin)
         df_clean = procesar_datos_sipsa(df)
@@ -73,3 +74,5 @@ def _guardar_bg(fecha_inicio, fecha_fin, db: Session):
     except Exception as e:
         db.rollback()
         logger.error(f"Error guardando SIPSA: {e}")
+    finally:
+        db.close()
