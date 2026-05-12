@@ -1,19 +1,18 @@
 import axios from "axios";
 
-const api = axios.create({ baseURL: "/api/v1" });
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
+const api = axios.create({
+  baseURL: "/api/v1",
+  withCredentials: true,   // send HttpOnly cookie on every request
 });
+
+// No Authorization header injection — the cookie handles auth transparently
 
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("session");
       window.location.href = "/login";
     }
     return Promise.reject(err);
@@ -22,6 +21,7 @@ api.interceptors.response.use(
 
 export const authAPI = {
   login:            (data)      => api.post("/auth/login", data),
+  logout:           ()          => api.post("/auth/logout"),
   me:               ()          => api.get("/auth/me"),
   cambiarPassword:  (data)      => api.post("/auth/cambiar-password", data),
   listarUsuarios:   ()          => api.get("/auth/usuarios"),

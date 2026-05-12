@@ -6,9 +6,15 @@ from app.models.usuario import Usuario, RolUsuario
 import bcrypt
 import os
 
-SECRET_KEY   = os.getenv("SECRET_KEY", "desposte-secret-key-cambia-en-produccion-2026")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set. "
+        "Add it to backend/.env before starting the application."
+    )
+
 ALGORITHM    = "HS256"
-TOKEN_EXPIRE = int(os.getenv("TOKEN_EXPIRE_MINUTES", "480"))
+TOKEN_EXPIRE = int(os.getenv("TOKEN_EXPIRE_MINUTES", "60"))
 
 
 def hash_password(password: str) -> str:
@@ -46,12 +52,24 @@ def autenticar_usuario(db: Session, username: str, password: str) -> Optional[Us
 
 def crear_usuario_inicial(db: Session):
     defaults = [
-        {"nombre": "Administrador", "email": "admin@desposte.com",
-         "username": "admin",    "password": "Admin2026!",    "rol": RolUsuario.ADMIN},
-        {"nombre": "Operador",    "email": "operador@desposte.com",
-         "username": "operador", "password": "Operador2026!", "rol": RolUsuario.ESTANDAR},
+        {
+            "nombre":   "Administrador",
+            "email":    os.getenv("ADMIN_EMAIL",    "admin@desposte.com"),
+            "username": os.getenv("ADMIN_USERNAME", "admin"),
+            "password": os.getenv("ADMIN_PASSWORD"),
+            "rol":      RolUsuario.ADMIN,
+        },
+        {
+            "nombre":   "Operador",
+            "email":    os.getenv("OPERADOR_EMAIL",    "operador@desposte.com"),
+            "username": os.getenv("OPERADOR_USERNAME", "operador"),
+            "password": os.getenv("OPERADOR_PASSWORD"),
+            "rol":      RolUsuario.ESTANDAR,
+        },
     ]
     for u in defaults:
+        if not u["password"]:
+            continue
         if not db.query(Usuario).filter(Usuario.username == u["username"]).first():
             db.add(Usuario(
                 nombre=u["nombre"], email=u["email"], username=u["username"],
