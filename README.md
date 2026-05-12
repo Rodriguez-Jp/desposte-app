@@ -23,12 +23,12 @@ DATABASE_URL=postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supaba
 SECRET_KEY=<clave-secreta-aleatoria>
 DEBUG=true
 TOKEN_EXPIRE_MINUTES=60
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=Admin2026!
-ADMIN_EMAIL=admin@desposte.com
-OPERADOR_USERNAME=operador
-OPERADOR_PASSWORD=Operador2026!
-OPERADOR_EMAIL=operador@desposte.com
+ADMIN_USERNAME=<usuario-admin>
+ADMIN_PASSWORD=<contraseña-admin>
+ADMIN_EMAIL=<email-admin>
+OPERADOR_USERNAME=<usuario-operador>
+OPERADOR_PASSWORD=<contraseña-operador>
+OPERADOR_EMAIL=<email-operador>
 ```
 
 Las tablas se crean automáticamente al iniciar el backend. Los usuarios por defecto también se crean al arrancar.
@@ -65,10 +65,7 @@ Aplicación: http://localhost:5173
 
 ## Credenciales por defecto
 
-| Usuario | Contraseña | Rol |
-|---------|-----------|-----|
-| admin | Admin2026! | ADMIN |
-| operador | Operador2026! | ESTANDAR |
+Los usuarios iniciales se crean automáticamente al arrancar el backend. Las credenciales están definidas en el archivo `backend/.env` (variables `ADMIN_PASSWORD` y `OPERADOR_PASSWORD`).
 
 ---
 
