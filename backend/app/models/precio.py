@@ -15,7 +15,6 @@ class Precio(Base):
     precio_sipsa_referencia = Column(Float)
     precio_minimo_viable = Column(Float)
     precio_maximo_mercado = Column(Float)
-    nivel_confianza = Column(Float)
     fecha_calculo = Column(DateTime(timezone=True), server_default=func.now())
     activo = Column(Boolean, default=True)
 

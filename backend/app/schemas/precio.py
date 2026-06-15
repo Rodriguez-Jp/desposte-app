@@ -12,7 +12,6 @@ class PrecioResponse(BaseModel):
     precio_sipsa_referencia: Optional[float] = None
     precio_minimo_viable: Optional[float] = None
     precio_maximo_mercado: Optional[float] = None
-    nivel_confianza: Optional[float] = None
     fecha_calculo: datetime
     activo: bool
 

@@ -110,10 +110,8 @@ def generar_precio_sugerido(
     precio_ajustado = precio_base * factor_cat.get(categoria, 1.0)
     if precio_sipsa and precio_sipsa > 0:
         precio_final = precio_ajustado * 0.6 + precio_sipsa * 0.4
-        confianza = 85.0
     else:
         precio_final = precio_ajustado
-        confianza = 70.0
     margen_real = (precio_final - costo_total) / precio_final * 100 if precio_final > 0 else 0
     return {
         "precio_costo_unitario": round(costo_total, 2),
@@ -121,5 +119,4 @@ def generar_precio_sugerido(
         "precio_minimo_viable":  round(precio_base, 2),
         "precio_sipsa_referencia": round(precio_sipsa, 2) if precio_sipsa else None,
         "margen_real":           round(margen_real, 2),
-        "nivel_confianza":       confianza,
     }

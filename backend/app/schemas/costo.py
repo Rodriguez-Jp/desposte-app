@@ -9,6 +9,7 @@ class CostoBase(BaseModel):
     categoria: Optional[str] = None
     valor: float
     unidad: Optional[str] = "por_animal"
+    inductor: Optional[str] = "KG"
     notas: Optional[str] = None
 
 
@@ -21,6 +22,7 @@ class CostoUpdate(BaseModel):
     categoria: Optional[str] = None
     valor: Optional[float] = None
     unidad: Optional[str] = None
+    inductor: Optional[str] = None
     notas: Optional[str] = None
 
 

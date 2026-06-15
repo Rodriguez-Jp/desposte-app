@@ -52,9 +52,7 @@ export const costosAPI = {
 };
 export const sipsaAPI = {
   consultar:  (p)  => api.get("/sipsa/consultar", { params: p }),
-  guardar:    ()   => api.post("/sipsa/guardar"),
   promedios:  ()   => api.get("/sipsa/promedios"),
-  historico:  ()   => api.get("/sipsa/historico"),
 };
 export const analisisAPI = {
   dashboard:       ()       => api.get("/analisis/dashboard"),

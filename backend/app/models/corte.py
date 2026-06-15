@@ -12,7 +12,11 @@ class Corte(Base):
     nombre = Column(String(100), nullable=False)
     categoria = Column(String(50), default="ESTANDAR")
     peso_kg = Column(Float, nullable=False)
-    porcentaje_rendimiento = Column(Float)
+    # Intensidad de proceso del corte (limpieza / tipo de corte) usada como
+    # ponderador del inductor en el costeo ABC. 1.0 = corte promedio.
+    factor_complejidad = Column(Float, default=1.0)
+    # Costo ABC por kg del corte, calculado en el último análisis de precios.
+    costo_unitario = Column(Float)
     precio_sugerido = Column(Float)
     precio_mercado_sipsa = Column(Float)
     margen_ganancia = Column(Float)

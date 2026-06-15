@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Beef, Save, Plus, Pencil, Trash2 } from "lucide-react";
 import { animalesAPI } from "../services/api";
 import Toast from "../components/Toast";
 
@@ -10,6 +11,7 @@ const fmt = (n) => Number(n ?? 0).toLocaleString("es-CO");
 export default function AnimalesPage() {
   const [animales, setAnimales] = useState([]);
   const [form, setForm]         = useState(EMPTY);
+  const [editId, setEditId]     = useState(null);
   const [loading, setLoading]   = useState(false);
   const [toast, setToast]       = useState({ msg:"", type:"success" });
 
@@ -21,18 +23,36 @@ export default function AnimalesPage() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      await animalesAPI.crear({
+      const payload = {
         ...form,
         peso_vivo: parseFloat(form.peso_vivo),
         peso_canal: form.peso_canal ? parseFloat(form.peso_canal) : null,
         precio_compra: parseFloat(form.precio_compra),
-      });
-      setToast({ msg:"✅ Animal registrado exitosamente", type:"success" });
-      setForm(EMPTY); cargar();
+      };
+      if (editId) {
+        await animalesAPI.actualizar(editId, payload);
+        setToast({ msg:"Animal actualizado", type:"success" });
+      } else {
+        await animalesAPI.crear(payload);
+        setToast({ msg:"Animal registrado exitosamente", type:"success" });
+      }
+      setForm(EMPTY); setEditId(null); cargar();
     } catch(err) {
-      setToast({ msg:"❌ " + (err.response?.data?.detail || "Error al registrar"), type:"error" });
+      setToast({ msg: err.response?.data?.detail || "Error al guardar", type:"error" });
     } finally { setLoading(false); }
   };
+
+  const editar = (a) => {
+    setForm({
+      codigo:a.codigo, tipo:a.tipo, raza:a.raza||"",
+      peso_vivo:a.peso_vivo??"", peso_canal:a.peso_canal??"",
+      calidad:a.calidad, precio_compra:a.precio_compra??"", notas:a.notas||"",
+    });
+    setEditId(a.id);
+    window.scrollTo({ top:0, behavior:"smooth" });
+  };
+
+  const cancelar = () => { setForm(EMPTY); setEditId(null); };
 
   const eliminar = async (id) => {
     if (!confirm("¿Eliminar este animal?")) return;
@@ -42,11 +62,11 @@ export default function AnimalesPage() {
 
   return (
     <div className="main-content">
-      <p className="section-title">🐄 Registro de Animales</p>
+      <p className="section-title"><Beef size={20} /> Registro de Animales</p>
 
       {/* Formulario */}
       <div className="table-card" style={{marginBottom:24}}>
-        <div className="table-card-header"><h2>Nuevo Animal</h2></div>
+        <div className="table-card-header"><h2>{editId ? "Editar Animal" : "Nuevo Animal"}</h2></div>
         <div style={{padding:"20px 24px"}}>
           <form onSubmit={handleSubmit}>
             <div className="form-grid">
@@ -87,10 +107,15 @@ export default function AnimalesPage() {
                 <input value={form.notas} onChange={e=>set("notas",e.target.value)} placeholder="Observaciones..." />
               </div>
             </div>
-            <div style={{marginTop:18}}>
+            <div style={{marginTop:18, display:"flex", gap:12}}>
               <button type="submit" className="btn btn-navy btn-full" disabled={loading} style={{maxWidth:220}}>
-                {loading ? "Guardando…" : "＋ Registrar Animal"}
+                {loading ? "Guardando…" : editId ? <><Save size={15} /> Guardar Cambios</> : <><Plus size={15} /> Registrar Animal</>}
               </button>
+              {editId && (
+                <button type="button" className="btn btn-sm" onClick={cancelar} style={{maxWidth:140}}>
+                  Cancelar
+                </button>
+              )}
             </div>
           </form>
         </div>
@@ -123,12 +148,15 @@ export default function AnimalesPage() {
                   <td><span className="tag tag-blue">{a.calidad}</span></td>
                   <td className="td-price">${fmt(a.precio_compra)}</td>
                   <td>
-                    <button className="btn btn-danger btn-sm" onClick={()=>eliminar(a.id)}>🗑 Eliminar</button>
+                    <div style={{display:"flex", gap:6}}>
+                      <button className="btn btn-sm" onClick={()=>editar(a)}><Pencil size={14} /> Editar</button>
+                      <button className="btn btn-danger btn-sm" onClick={()=>eliminar(a.id)}><Trash2 size={14} /> Eliminar</button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {!animales.length && (
-                <tr><td colSpan={9}><div className="empty-state"><div className="empty-icon">🐄</div><p>Sin animales registrados</p></div></td></tr>
+                <tr><td colSpan={9}><div className="empty-state"><div className="empty-icon"><Beef size={40} /></div><p>Sin animales registrados</p></div></td></tr>
               )}
             </tbody>
           </table>

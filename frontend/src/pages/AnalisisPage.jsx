@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import { FlaskConical, Zap, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { animalesAPI, analisisAPI } from "../services/api";
 import KpiCard from "../components/KpiCard";
-import ConfBadge from "../components/ConfBadge";
 import Toast from "../components/Toast";
 
 const fmt = (n) => Number(n??0).toLocaleString("es-CO");
@@ -18,7 +18,7 @@ export default function AnalisisPage() {
   useEffect(()=>{ animalesAPI.listar().then(r=>setAnimales(r.data)); },[]);
 
   const calcular = async () => {
-    if (!animalId) { setToast({msg:"⚠️ Selecciona un animal",type:"error"}); return; }
+    if (!animalId) { setToast({msg:"Selecciona un animal",type:"error"}); return; }
     setLoading(true); setResultados(null); setCostoKg(null);
     try {
       const [r, k] = await Promise.all([
@@ -26,9 +26,9 @@ export default function AnalisisPage() {
         analisisAPI.costoKg(animalId),
       ]);
       setResultados(r.data); setCostoKg(k.data.costo_por_kg);
-      setToast({msg:"✅ Precios calculados exitosamente",type:"success"});
+      setToast({msg:"Precios calculados exitosamente",type:"success"});
     } catch(err) {
-      setToast({msg:"❌ "+(err.response?.data?.detail||"Error en cálculo"),type:"error"});
+      setToast({msg:err.response?.data?.detail||"Error en cálculo",type:"error"});
     } finally { setLoading(false); }
   };
 
@@ -42,7 +42,7 @@ export default function AnalisisPage() {
 
   return (
     <div className="main-content">
-      <p className="section-title">🔬 Análisis y Cálculo de Precios</p>
+      <p className="section-title"><FlaskConical size={20} /> Análisis y Cálculo de Precios</p>
 
       {/* Panel de control */}
       <div className="table-card" style={{marginBottom:24}}>
@@ -60,7 +60,7 @@ export default function AnalisisPage() {
             <input type="number" min="5" max="90" value={margen} onChange={e=>setMargen(e.target.value)} className="mono" style={{width:90}} />
           </div>
           <button onClick={calcular} disabled={loading} className="btn btn-navy" style={{padding:"10px 24px",fontSize:".9rem",marginBottom:1}}>
-            {loading ? "⏳ Calculando…" : "⚡ Calcular Precios"}
+            {loading ? "Calculando…" : <><Zap size={16} /> Calcular Precios</>}
           </button>
         </div>
       </div>
@@ -94,7 +94,6 @@ export default function AnalisisPage() {
                   <th>Precio Sugerido</th>
                   <th>Mín. Viable</th>
                   <th>Margen Real</th>
-                  <th>Confianza</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,7 +111,6 @@ export default function AnalisisPage() {
                         {r.margen_real.toFixed(1)}%
                       </span>
                     </td>
-                    <td><ConfBadge value={r.nivel_confianza} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -126,20 +124,14 @@ export default function AnalisisPage() {
         <div className="alerts">
           {resultados.resultados.filter(r=>r.margen_real<margen).length>0 && (
             <div className="alert alert-red">
-              <span className="alert-icon">⚠️</span>
+              <span className="alert-icon"><AlertTriangle size={18} /></span>
               <span>{resultados.resultados.filter(r=>r.margen_real<margen).length} corte(s) por debajo del margen objetivo</span>
             </div>
           )}
           {resultados.resultados.filter(r=>r.precio_sipsa_referencia).length>0 && (
             <div className="alert alert-green">
-              <span className="alert-icon">✅</span>
+              <span className="alert-icon"><CheckCircle2 size={18} /></span>
               <span>{resultados.resultados.filter(r=>r.precio_sipsa_referencia).length} corte(s) con referencia de precio SIPSA</span>
-            </div>
-          )}
-          {resultados.resultados.filter(r=>r.nivel_confianza>=85).length>0 && (
-            <div className="alert alert-blue">
-              <span className="alert-icon">📊</span>
-              <span>{resultados.resultados.filter(r=>r.nivel_confianza>=85).length} corte(s) con alta confianza (≥85%)</span>
             </div>
           )}
         </div>
@@ -147,7 +139,7 @@ export default function AnalisisPage() {
 
       {!resultados && !loading && (
         <div className="empty-state">
-          <div className="empty-icon">🔬</div>
+          <div className="empty-icon"><FlaskConical size={40} /></div>
           <p>Selecciona un animal y presiona <strong>Calcular Precios</strong> para ver resultados</p>
         </div>
       )}

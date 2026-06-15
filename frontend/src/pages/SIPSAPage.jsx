@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { TrendingUp, RefreshCw, Pin, ClipboardList } from "lucide-react";
 import { sipsaAPI } from "../services/api";
 import Toast from "../components/Toast";
 
@@ -18,35 +19,25 @@ export default function SIPSAPage() {
       const [d, p] = await Promise.all([sipsaAPI.consultar({}), sipsaAPI.promedios()]);
       setDatos(d.data.datos || []); setTotal(d.data.total || 0);
       setPromedios(p.data || {});
-    } catch { setToast({msg:"❌ Error consultando SIPSA",type:"error"}); }
-    finally { setLoading(false); }
-  };
-
-  const guardar = async () => {
-    setLoading(true);
-    try { await sipsaAPI.guardar(); setToast({msg:"✅ Datos SIPSA guardados en base de datos",type:"success"}); }
-    catch { setToast({msg:"❌ Error guardando",type:"error"}); }
+    } catch { setToast({msg:"Error consultando SIPSA",type:"error"}); }
     finally { setLoading(false); }
   };
 
   useEffect(()=>{ consultar(); },[]);
 
   const TABS = [
-    {id:"promedios", label:"📌 Promedios por Corte"},
-    {id:"tabla",     label:"📋 Datos Detallados"},
+    {id:"promedios", icon:Pin,           label:"Promedios por Corte"},
+    {id:"tabla",     icon:ClipboardList, label:"Datos Detallados"},
   ];
 
   return (
     <div className="main-content">
       {/* Header */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-        <p className="section-title" style={{margin:0}}>📈 Sistema SIPSA — DANE Colombia</p>
+        <p className="section-title" style={{margin:0}}><TrendingUp size={20} /> Sistema SIPSA — DANE Colombia</p>
         <div style={{display:"flex",gap:8}}>
           <button onClick={consultar} disabled={loading} className="btn btn-ghost">
-            {loading ? "⏳ Consultando…" : "🔄 Actualizar datos"}
-          </button>
-          <button onClick={guardar} disabled={loading} className="btn btn-navy">
-            💾 Guardar en BD
+            {loading ? "Consultando…" : <><RefreshCw size={15} /> Actualizar datos</>}
           </button>
         </div>
       </div>
@@ -60,9 +51,9 @@ export default function SIPSAPage() {
 
       {/* Tabs */}
       <div className="tabs-bar" style={{marginBottom:0,borderRadius:"10px 10px 0 0"}}>
-        {TABS.map(t=>(
-          <button key={t.id} className={`tab-btn ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>
-            {t.label}
+        {TABS.map(({id,icon:Icon,label})=>(
+          <button key={id} className={`tab-btn ${tab===id?"active":""}`} onClick={()=>setTab(id)}>
+            <Icon size={15} /> {label}
           </button>
         ))}
       </div>
@@ -100,7 +91,7 @@ export default function SIPSAPage() {
                   </tr>
                 ))}
                 {!Object.keys(promedios).length && (
-                  <tr><td colSpan={7}><div className="empty-state"><div className="empty-icon">📈</div><p>Presiona Actualizar datos</p></div></td></tr>
+                  <tr><td colSpan={7}><div className="empty-state"><div className="empty-icon"><TrendingUp size={40} /></div><p>Presiona Actualizar datos</p></div></td></tr>
                 )}
               </tbody>
             </table>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Beef, Eye, EyeOff, AlertTriangle, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
@@ -25,7 +26,7 @@ export default function LoginPage() {
       <div style={s.card}>
         {/* Logo */}
         <div style={s.logoWrap}>
-          <div style={s.logoCircle}>🐂</div>
+          <div style={s.logoCircle}><Beef size={30} color="#fff" /></div>
           <h1 style={s.logoTitle}><strong>Optimización de Precios</strong></h1>
           <p style={s.logoSub}>Desposte de Ganado — v2.0</p>
         </div>
@@ -37,7 +38,7 @@ export default function LoginPage() {
         {error && (
           <div className="alert alert-red"
                style={{marginBottom:16, padding:"10px 14px", borderRadius:8}}>
-            <span className="alert-icon">⚠️</span>
+            <span className="alert-icon"><AlertTriangle size={16} /></span>
             <span>{error}</span>
           </div>
         )}
@@ -69,7 +70,7 @@ export default function LoginPage() {
               style={s.eye}
               tabIndex={-1}
             >
-              {showPwd ? "🙈" : "👁️"}
+              {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
@@ -77,9 +78,9 @@ export default function LoginPage() {
             type="submit"
             className="btn btn-navy btn-full"
             disabled={loading}
-            style={{fontSize:"1rem", padding:"11px"}}
+            style={{fontSize:"1rem", padding:"11px", display:"inline-flex", alignItems:"center", justifyContent:"center", gap:8}}
           >
-            {loading ? "⏳ Verificando…" : "Ingresar →"}
+            {loading ? "Verificando…" : <>Ingresar <ArrowRight size={18} /></>}
           </button>
         </form>
 

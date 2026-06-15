@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import {
+  Users, Plus, Pencil, Trash2, ShieldCheck, User, Ban, CheckCircle2,
+} from "lucide-react";
 import { authAPI } from "../services/api";
 import Toast from "../components/Toast";
 
@@ -22,15 +25,17 @@ export default function UsuariosPage() {
     e.preventDefault(); setLoading(true);
     try {
       if (editId) {
-        await authAPI.actualizarUsuario(editId,{nombre:form.nombre,email:form.email,rol:form.rol});
-        setToast({msg:"✅ Usuario actualizado",type:"success"});
+        const payload = {nombre:form.nombre,email:form.email,rol:form.rol};
+        if (form.password) payload.password = form.password;
+        await authAPI.actualizarUsuario(editId,payload);
+        setToast({msg: form.password ? "Usuario y contraseña actualizados" : "Usuario actualizado",type:"success"});
       } else {
         await authAPI.crearUsuario(form);
-        setToast({msg:"✅ Usuario creado",type:"success"});
+        setToast({msg:"Usuario creado",type:"success"});
       }
       setForm(EMPTY); setShowForm(false); setEditId(null); cargar();
     } catch(err) {
-      setToast({msg:"❌ "+(err.response?.data?.detail||"Error"),type:"error"});
+      setToast({msg:err.response?.data?.detail||"Error",type:"error"});
     } finally {setLoading(false);}
   };
 
@@ -53,9 +58,9 @@ export default function UsuariosPage() {
   return (
     <div className="main-content">
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-        <p className="section-title" style={{margin:0}}>👥 Gestión de Usuarios</p>
+        <p className="section-title" style={{margin:0}}><Users size={20} /> Gestión de Usuarios</p>
         <button className="btn btn-navy" onClick={()=>{setForm(EMPTY);setEditId(null);setShowForm(true);}}>
-          ＋ Nuevo Usuario
+          <Plus size={15} /> Nuevo Usuario
         </button>
       </div>
 
@@ -68,7 +73,7 @@ export default function UsuariosPage() {
       {showForm && (
         <div className="modal-overlay open" onClick={e=>{if(e.target===e.currentTarget){setShowForm(false);setEditId(null);}}}>
           <div className="modal-box">
-            <h3>{editId?"✏️ Editar Usuario":"➕ Nuevo Usuario"}</h3>
+            <h3 style={{display:"flex",alignItems:"center",gap:8}}>{editId?<><Pencil size={18} /> Editar Usuario</>:<><Plus size={18} /> Nuevo Usuario</>}</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-group" style={{marginBottom:12}}>
                 <label>Nombre completo *</label>
@@ -78,16 +83,18 @@ export default function UsuariosPage() {
                 <label>Email *</label>
                 <input type="email" value={form.email} onChange={e=>set("email",e.target.value)} required placeholder="juan@empresa.com" />
               </div>
-              {!editId && <>
+              {!editId && (
                 <div className="form-group" style={{marginBottom:12}}>
                   <label>Username *</label>
                   <input value={form.username} onChange={e=>set("username",e.target.value)} required placeholder="juan.perez" />
                 </div>
-                <div className="form-group" style={{marginBottom:12}}>
-                  <label>Contraseña *</label>
-                  <input type="password" value={form.password} onChange={e=>set("password",e.target.value)} required placeholder="Mínimo 8 caracteres" />
-                </div>
-              </>}
+              )}
+              <div className="form-group" style={{marginBottom:12}}>
+                <label>{editId ? "Nueva contraseña (opcional)" : "Contraseña *"}</label>
+                <input type="password" value={form.password} onChange={e=>set("password",e.target.value)}
+                       required={!editId}
+                       placeholder={editId ? "Dejar en blanco para no cambiar" : "Mínimo 8 caracteres"} />
+              </div>
               <div className="form-group" style={{marginBottom:20}}>
                 <label>Rol</label>
                 <select value={form.rol} onChange={e=>set("rol",e.target.value)}>
@@ -121,17 +128,17 @@ export default function UsuariosPage() {
                   <td className="td-mono">{u.username}</td>
                   <td className="td-muted" style={{fontSize:".82rem"}}>{u.email}</td>
                   <td>
-                    <span className="tag" style={u.rol==="ADMIN"?{background:"#fef0e7",color:"var(--accent)"}:{background:"#e0effe",color:"#1a5fb4"}}>
-                      {u.rol==="ADMIN"?"👑 Admin":"👤 Operador"}
+                    <span className="tag" style={{...(u.rol==="ADMIN"?{background:"#fef0e7",color:"var(--accent)"}:{background:"#e0effe",color:"#1a5fb4"}),display:"inline-flex",alignItems:"center",gap:4}}>
+                      {u.rol==="ADMIN"?<><ShieldCheck size={12} /> Admin</>:<><User size={12} /> Operador</>}
                     </span>
                   </td>
                   <td><span className={`tag ${u.activo?"tag-green":"tag-red"}`}>{u.activo?"● Activo":"○ Inactivo"}</span></td>
                   <td className="td-mono td-muted" style={{fontSize:".78rem"}}>{fmt(u.ultimo_acceso)}</td>
                   <td>
                     <div className="actions">
-                      <button className="btn btn-ghost btn-sm" onClick={()=>abrirEditar(u)}>✏️</button>
-                      <button className={`btn btn-sm ${u.activo?"btn-danger":"btn-approve"}`} onClick={()=>toggleActivo(u)}>{u.activo?"⛔":"✅"}</button>
-                      <button className="btn btn-danger btn-sm" onClick={()=>eliminar(u.id)}>🗑</button>
+                      <button className="btn btn-ghost btn-sm" onClick={()=>abrirEditar(u)}><Pencil size={14} /></button>
+                      <button className={`btn btn-sm ${u.activo?"btn-danger":"btn-approve"}`} onClick={()=>toggleActivo(u)}>{u.activo?<Ban size={14} />:<CheckCircle2 size={14} />}</button>
+                      <button className="btn btn-danger btn-sm" onClick={()=>eliminar(u.id)}><Trash2 size={14} /></button>
                     </div>
                   </td>
                 </tr>

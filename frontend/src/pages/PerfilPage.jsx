@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { User, ShieldCheck, KeyRound } from "lucide-react";
 import { authAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import Toast from "../components/Toast";
@@ -13,22 +14,22 @@ export default function PerfilPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password_nueva !== form.confirmar)
-      return setToast({msg:"❌ Las contraseñas no coinciden",type:"error"});
+      return setToast({msg:"Las contraseñas no coinciden",type:"error"});
     if (form.password_nueva.length < 8)
-      return setToast({msg:"❌ Mínimo 8 caracteres",type:"error"});
+      return setToast({msg:"Mínimo 8 caracteres",type:"error"});
     setLoading(true);
     try {
       await authAPI.cambiarPassword({password_actual:form.password_actual,password_nueva:form.password_nueva});
-      setToast({msg:"✅ Contraseña actualizada",type:"success"});
+      setToast({msg:"Contraseña actualizada",type:"success"});
       setForm({password_actual:"",password_nueva:"",confirmar:""});
     } catch(err) {
-      setToast({msg:"❌ "+(err.response?.data?.detail||"Error"),type:"error"});
+      setToast({msg:err.response?.data?.detail||"Error",type:"error"});
     } finally {setLoading(false);}
   };
 
   return (
     <div className="main-content">
-      <p className="section-title">👤 Mi Perfil</p>
+      <p className="section-title"><User size={20} /> Mi Perfil</p>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
         <div className="table-card">
           <div className="table-card-header"><h2>Información de cuenta</h2></div>
@@ -40,8 +41,8 @@ export default function PerfilPage() {
               <div>
                 <div style={{fontWeight:700,fontSize:"1.1rem",color:"var(--navy)"}}>{user?.nombre}</div>
                 <div style={{color:"var(--muted)",fontSize:".85rem",margin:"2px 0 6px"}}>{user?.username}</div>
-                <span className="tag" style={user?.rol==="ADMIN"?{background:"#fef0e7",color:"var(--accent)"}:{background:"#e0effe",color:"#1a5fb4"}}>
-                  {user?.rol==="ADMIN"?"👑 Administrador":"👤 Operador"}
+                <span className="tag" style={{...(user?.rol==="ADMIN"?{background:"#fef0e7",color:"var(--accent)"}:{background:"#e0effe",color:"#1a5fb4"}),display:"inline-flex",alignItems:"center",gap:4}}>
+                  {user?.rol==="ADMIN"?<><ShieldCheck size={12} /> Administrador</>:<><User size={12} /> Operador</>}
                 </span>
               </div>
             </div>
@@ -57,7 +58,7 @@ export default function PerfilPage() {
         </div>
 
         <div className="table-card">
-          <div className="table-card-header"><h2>🔐 Cambiar contraseña</h2></div>
+          <div className="table-card-header"><h2 style={{display:"inline-flex",alignItems:"center",gap:8}}><KeyRound size={18} /> Cambiar contraseña</h2></div>
           <div style={{padding:"24px"}}>
             <form onSubmit={handleSubmit}>
               {[["password_actual","Contraseña actual","Tu contraseña actual"],
@@ -69,7 +70,7 @@ export default function PerfilPage() {
                 </div>
               ))}
               <button type="submit" className="btn btn-navy btn-full" disabled={loading} style={{marginTop:6}}>
-                {loading?"Guardando…":"🔐 Actualizar contraseña"}
+                {loading?"Guardando…":<><KeyRound size={15} /> Actualizar contraseña</>}
               </button>
             </form>
           </div>

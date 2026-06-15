@@ -5,6 +5,7 @@ from ..database.connection import get_db
 from ..models.corte import Corte
 from ..schemas.corte import CorteCreate, CorteUpdate, CorteResponse
 from ..schemas.precio import PrecioResponse
+from ..services.analisis_service import factor_complejidad_corte
 from ..dependencies.auth import get_current_user
 
 router = APIRouter(prefix="/cortes", tags=["Cortes"], dependencies=[Depends(get_current_user)])
@@ -13,6 +14,8 @@ router = APIRouter(prefix="/cortes", tags=["Cortes"], dependencies=[Depends(get_
 @router.post("/", response_model=CorteResponse, status_code=201)
 def crear_corte(data: CorteCreate, db: Session = Depends(get_db)):
     corte = Corte(**data.model_dump())
+    # El factor de complejidad ABC se asigna automáticamente según el corte.
+    corte.factor_complejidad = factor_complejidad_corte(corte.nombre)
     db.add(corte)
     db.commit()
     db.refresh(corte)
@@ -44,6 +47,8 @@ def actualizar_corte(corte_id: int, data: CorteUpdate, db: Session = Depends(get
         raise HTTPException(404, "Corte no encontrado")
     for k, v in data.model_dump(exclude_unset=True).items():
         setattr(c, k, v)
+    # Recalcula el factor por si cambió el nombre del corte.
+    c.factor_complejidad = factor_complejidad_corte(c.nombre)
     db.commit()
     db.refresh(c)
     return c

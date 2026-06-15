@@ -13,6 +13,9 @@ class Costo(Base):
     categoria = Column(String(100))
     valor = Column(Float, nullable=False)
     unidad = Column(String(50), default="por_animal")
+    # Inductor de costo ABC: KG, HORAS_HOMBRE, KWH, M3_REFRIG, FIJO.
+    # Define cómo se asigna el costo de la actividad a cada corte.
+    inductor = Column(String(30), default="KG")
     fecha_registro = Column(DateTime(timezone=True), server_default=func.now())
     notas = Column(String(500))
 

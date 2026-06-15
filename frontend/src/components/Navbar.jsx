@@ -1,14 +1,18 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard, Beef, Slice, DollarSign, TrendingUp,
+  FlaskConical, Users, ShieldCheck, User, LogOut,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const LINKS = [
-  { to: "/",         label: "📊 Dashboard", adminOnly: false },
-  { to: "/animales", label: "🐄 Animales",  adminOnly: false },
-  { to: "/cortes",   label: "🥩 Cortes",    adminOnly: false },
-  { to: "/costos",   label: "💰 Costos",    adminOnly: false },
-  { to: "/sipsa",    label: "📈 SIPSA",     adminOnly: false },
-  { to: "/analisis", label: "🔬 Análisis",  adminOnly: false },
-  { to: "/usuarios", label: "👥 Usuarios",  adminOnly: true  },
+  { to: "/",         label: "Dashboard", icon: LayoutDashboard, adminOnly: false },
+  { to: "/animales", label: "Animales",  icon: Beef,            adminOnly: false },
+  { to: "/cortes",   label: "Cortes",    icon: Slice,           adminOnly: false },
+  { to: "/costos",   label: "Costos",    icon: DollarSign,      adminOnly: false },
+  { to: "/sipsa",    label: "SIPSA",     icon: TrendingUp,      adminOnly: false },
+  { to: "/analisis", label: "Análisis",  icon: FlaskConical,    adminOnly: false },
+  { to: "/usuarios", label: "Usuarios",  icon: Users,           adminOnly: true  },
 ];
 
 export default function Navbar() {
@@ -18,14 +22,14 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <NavLink to="/" className="nav-brand" style={{textDecoration:"none"}}>
-        <div className="nav-brand-icon">🐂</div>
+        <div className="nav-brand-icon"><Beef size={20} /></div>
         <h1><strong>Optimización de Precios</strong><br/>en el Desposte de Ganado</h1>
       </NavLink>
 
       <div className="nav-links" style={{flex:1, paddingLeft:16}}>
-        {LINKS.filter(l => !l.adminOnly || isAdmin).map(({ to, label }) => (
+        {LINKS.filter(l => !l.adminOnly || isAdmin).map(({ to, label, icon: Icon }) => (
           <NavLink key={to} to={to} end={to==="/"} className={({isActive})=>"nav-link"+(isActive?" active":"")}>
-            {label}
+            <Icon size={16} /> {label}
           </NavLink>
         ))}
       </div>
@@ -37,14 +41,16 @@ export default function Navbar() {
               <div style={st.avatar}>{user.nombre?.[0]?.toUpperCase()||"U"}</div>
               <div>
                 <div style={st.userName}>{user.nombre}</div>
-                <span style={st.rolBadge(user.rol)}>
-                  {user.rol==="ADMIN"?"👑 Admin":"👤 Operador"}
+                <span style={{...st.rolBadge(user.rol),display:"inline-flex",alignItems:"center",gap:4}}>
+                  {user.rol==="ADMIN"
+                    ? <><ShieldCheck size={11} /> Admin</>
+                    : <><User size={11} /> Operador</>}
                 </span>
               </div>
             </div>
           </NavLink>
           <button onClick={()=>{logout();navigate("/login");}} className="nav-link">
-            🚪 Salir
+            <LogOut size={16} /> Salir
           </button>
         </div>
       )}

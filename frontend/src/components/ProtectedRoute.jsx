@@ -1,11 +1,12 @@
 import { Navigate } from "react-router-dom";
+import { Hourglass } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({ children, adminOnly = false }) {
   const { user, loading } = useAuth();
   if (loading) return (
     <div className="main-content empty-state">
-      <div className="empty-icon">⏳</div><p>Verificando sesión…</p>
+      <div className="empty-icon"><Hourglass size={40} /></div><p>Verificando sesión…</p>
     </div>
   );
   if (!user)                           return <Navigate to="/login" replace />;

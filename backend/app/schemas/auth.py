@@ -35,10 +35,11 @@ class UsuarioOut(BaseModel):
         from_attributes = True
 
 class UsuarioUpdate(BaseModel):
-    nombre:  Optional[str]        = None
-    email:   Optional[str]        = None
-    activo:  Optional[bool]       = None
-    rol:     Optional[RolUsuario] = None
+    nombre:   Optional[str]        = None
+    email:    Optional[str]        = None
+    activo:   Optional[bool]       = None
+    rol:      Optional[RolUsuario] = None
+    password: Optional[str]        = None
 
 class CambioPassword(BaseModel):
     password_actual: str

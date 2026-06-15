@@ -96,7 +96,16 @@ def actualizar_usuario(user_id: int, data: UsuarioUpdate,
     user = db.query(Usuario).filter(Usuario.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    for k, v in data.model_dump(exclude_none=True).items():
+    cambios = data.model_dump(exclude_none=True)
+    nueva_password = cambios.pop("password", None)
+    if nueva_password is not None:
+        if len(nueva_password) < 8:
+            raise HTTPException(status_code=400,
+                                detail="La contraseña debe tener mínimo 8 caracteres")
+        user.hashed_password = hash_password(nueva_password)
+        # Bump version → invalidate the user's existing tokens immediately
+        user.password_version = (user.password_version or 0) + 1
+    for k, v in cambios.items():
         setattr(user, k, v)
     db.commit()
     db.refresh(user)

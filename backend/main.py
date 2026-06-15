@@ -5,16 +5,38 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from sqlalchemy import text
 from app.database import engine, Base, SessionLocal
 from app.routes import animales, cortes, costos, sipsa, analisis
 from app.routes.auth import router as auth_router
-from app.models import animal, corte, costo, precio, historico_sipsa, usuario
+from app.models import animal, corte, costo, precio, usuario
 from app.services.auth_service import crear_usuario_inicial
 from app.limiter import limiter
 
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 Base.metadata.create_all(bind=engine)
+
+
+def _migrar_columnas_abc():
+    """Añade columnas del modelo de costeo ABC a tablas ya existentes.
+
+    create_all() solo crea tablas nuevas; no altera las existentes, por lo que
+    estas columnas se agregan de forma idempotente (PostgreSQL).
+    """
+    with engine.begin() as conn:
+        conn.execute(text(
+            "ALTER TABLE costos ADD COLUMN IF NOT EXISTS inductor VARCHAR(30) DEFAULT 'KG'"
+        ))
+        conn.execute(text(
+            "ALTER TABLE cortes ADD COLUMN IF NOT EXISTS factor_complejidad DOUBLE PRECISION DEFAULT 1.0"
+        ))
+        conn.execute(text(
+            "ALTER TABLE cortes ADD COLUMN IF NOT EXISTS costo_unitario DOUBLE PRECISION"
+        ))
+
+
+_migrar_columnas_abc()
 
 app = FastAPI(
     title="Desposte de Ganado API",

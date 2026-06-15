@@ -22,6 +22,12 @@ def calcular_precios(animal_id: int, margen: float = 25.0, db: Session = Depends
     animal = db.query(Animal).filter(Animal.id == animal_id).first()
     if not animal:
         raise HTTPException(404, "Animal no encontrado")
+    if not animal.peso_canal or animal.peso_canal <= 0:
+        raise HTTPException(
+            400,
+            "El animal no tiene peso del canal registrado; no se puede calcular "
+            "el costo ABC. Registra el peso del canal antes de calcular precios.",
+        )
     resultados = calcular_precios_cortes(animal_id, margen, db)
     return {
         "animal_id":       animal_id,

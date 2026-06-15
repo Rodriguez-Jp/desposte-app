@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { TrendingUp, Hourglass } from "lucide-react";
 import { analisisAPI, sipsaAPI } from "../services/api";
 import KpiCard from "../components/KpiCard";
 
@@ -20,7 +21,7 @@ export default function DashboardPage() {
 
   if (loading) return (
     <div className="main-content empty-state">
-      <div className="empty-icon">⏳</div>
+      <div className="empty-icon"><Hourglass size={40} /></div>
       <p>Cargando dashboard…</p>
     </div>
   );
@@ -38,7 +39,7 @@ export default function DashboardPage() {
       {/* Tabla precios SIPSA */}
       <div className="table-card">
         <div className="table-card-header">
-          <h2>📈 Precios de Referencia SIPSA por Corte</h2>
+          <h2 style={{display:"inline-flex",alignItems:"center",gap:8}}><TrendingUp size={18} /> Precios de Referencia SIPSA por Corte</h2>
           <span className="tag tag-navy">DANE · Colombia</span>
         </div>
         <div className="table-scroll">
@@ -76,22 +77,6 @@ export default function DashboardPage() {
               )}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Alertas */}
-      <div className="alerts">
-        <div className="alert alert-blue">
-          <span className="alert-icon">ℹ️</span>
-          <span>Datos SIPSA: {metrics?.registros_sipsa ?? 0} registros almacenados en BD</span>
-        </div>
-        <div className="alert alert-green">
-          <span className="alert-icon">✅</span>
-          <span>Sistema de fallback activo — datos siempre disponibles</span>
-        </div>
-        <div className="alert alert-yellow">
-          <span className="alert-icon">⚡</span>
-          <span>Ve a Análisis para calcular precios automáticos por animal</span>
         </div>
       </div>
     </div>
