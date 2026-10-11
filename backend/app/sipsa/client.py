@@ -117,22 +117,26 @@ def _get_via_soap_semana() -> List[Dict]:
 
 def _demo_data() -> pd.DataFrame:
     """
-    Datos de demostración con precios realistas Colombia 2024-2025.
+    Datos de demostración calibrados con SIPSA (promediosSipsaSemanaMadr,
+    oct-2025 a oct-2026): cada rango es el percentil 25-75 del precio
+    promedio del corte en los mercados reportados. Lomo de aguja, bola negra,
+    lagarto y brazo no existen con ese nombre en SIPSA; se usaron cortes
+    afines (lomo de brazo, bola de pierna, centro de pierna, bola/lomo de brazo).
     Se activa automáticamente cuando los servicios DANE no responden.
     """
     cortes_info = [
-        ("Lomo fino",        "PREMIUM",   28000, 34000),
-        ("Lomo de aguja",    "PREMIUM",   24000, 29000),
-        ("Punta de anca",    "PREMIUM",   26000, 31000),
-        ("Cadera",           "ESTANDAR",  20000, 25000),
-        ("Bola negra",       "ESTANDAR",  18000, 23000),
-        ("Muchacho",         "ESTANDAR",  17000, 22000),
-        ("Costilla",         "ESTANDAR",  14000, 18000),
-        ("Lagarto",          "ECONOMICO", 12000, 16000),
-        ("Pecho",            "ECONOMICO", 11000, 15000),
-        ("Brazo",            "ECONOMICO", 10000, 14000),
-        ("Molida primera",   "ESTANDAR",  16000, 20000),
-        ("Molida corriente", "ECONOMICO", 12000, 15000),
+        ("Lomo fino",        "PREMIUM",   43500, 53500),
+        ("Lomo de aguja",    "PREMIUM",   26300, 32500),
+        ("Punta de anca",    "PREMIUM",   35300, 46600),
+        ("Cadera",           "ESTANDAR",  30000, 35300),
+        ("Bola negra",       "ESTANDAR",  29400, 35000),
+        ("Muchacho",         "ESTANDAR",  29400, 35500),
+        ("Costilla",         "ESTANDAR",  18700, 22700),
+        ("Lagarto",          "ECONOMICO", 29700, 34000),
+        ("Pecho",            "ECONOMICO", 26000, 29500),
+        ("Brazo",            "ECONOMICO", 28000, 34000),
+        ("Molida primera",   "ESTANDAR",  22500, 25000),
+        ("Molida corriente", "ECONOMICO", 19500, 22000),
     ]
     mercados = [
         ("Corabastos",           "Bogota"),
@@ -162,7 +166,7 @@ def _demo_data() -> pd.DataFrame:
                     "fecha_inicio":    semana_inicio.isoformat(),
                     "fecha_fin":       semana_fin.isoformat(),
                 })
-    logger.info("SIPSA: usando datos de demostración (precios reales Colombia 2024-2025).")
+    logger.info("SIPSA: usando datos de demostración (calibrados con SIPSA oct-2025/oct-2026).")
     return pd.DataFrame(rows)
 
 
@@ -175,7 +179,7 @@ def get_sipsa_bovino_prices(
     1. promediosSipsaCiudad()  (precio por ciudad)
     2. promediosSipsaParcial() (precio con min/max por ubicación)
     3. promediosSipsaSemanaMadr() (precio semanal mayorista)
-    4. Datos de demostración realistas Colombia 2024-2025
+    4. Datos de demostración calibrados con SIPSA (oct-2025/oct-2026)
     """
     # Nivel 1
     records = _get_via_soap_ciudad()
