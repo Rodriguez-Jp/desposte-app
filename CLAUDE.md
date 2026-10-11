@@ -14,8 +14,8 @@ cd backend
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-# API docs: http://localhost:8000/docs
+uvicorn main:app --reload --port 8001
+# API docs: http://localhost:8001/docs
 ```
 
 ### Frontend (React + Vite)
@@ -33,7 +33,7 @@ CREATE DATABASE desposte_db;
 ```
 Then configure `backend/.env` with PostgreSQL credentials. The backend auto-creates tables on startup.
 
-**Default credentials created on startup:** `admin/Admin2026!` (ADMIN role), `demo/Demo2026!` (ESTANDAR role).
+Initial `ADMIN`/`ESTANDAR` users are created on startup from the `ADMIN_*`/`OPERADOR_*` environment variables (see Environment Configuration below); no account is created if the corresponding `*_PASSWORD` variable is unset.
 
 ## Architecture
 
@@ -42,7 +42,7 @@ Then configure `backend/.env` with PostgreSQL credentials. The backend auto-crea
 - `frontend/` — React 18 with Vite, Axios, React Router 6
 
 ### Frontend-Backend Communication
-- Vite dev proxy (`vite.config.js`) routes `/api/*` → `http://localhost:8000`
+- Vite dev proxy (`vite.config.js`) routes `/api/*` → `http://localhost:8001`
 - Axios instance in `frontend/src/services/api.js` automatically attaches JWT Bearer token from localStorage to all requests; 401 responses auto-redirect to `/login`
 
 ### Authentication
@@ -96,8 +96,14 @@ frontend/src/
 ```
 DATABASE_URL=postgresql://postgres:admin@localhost:5432/desposte_db
 SIPSA_WSDL=http://appweb.dane.gov.co/sipsaWS/SrvSipsaUpraBeanService?WSDL
-# SECRET_KEY=desposte-secret-key-cambia-en-produccion-2026
-# TOKEN_EXPIRE_MINUTES=480
+SECRET_KEY=<generate your own, e.g. `openssl rand -hex 32`>
+TOKEN_EXPIRE_MINUTES=480
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<set a strong password>
+ADMIN_EMAIL=admin@desposte.com
+OPERADOR_USERNAME=operador
+OPERADOR_PASSWORD=<set a strong password>
+OPERADOR_EMAIL=operador@desposte.com
 ```
 
-CORS is configured in `backend/main.py` to allow `localhost:5173` and `localhost:3000`.
+CORS allowed origins are read from the `ALLOWED_ORIGINS` env var (comma-separated), defaulting to `localhost:5173` and `localhost:3000` — see `backend/main.py`.
