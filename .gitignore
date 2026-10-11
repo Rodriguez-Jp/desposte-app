@@ -25,3 +25,6 @@ Thumbs.db
 
 # Not for publication
 docs/ANTEPROYECTO_DESPOSTE_DE_GANADO.docx
+
+# Local-only documentation
+docs/
